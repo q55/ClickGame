@@ -2,7 +2,6 @@ package com.example.demo;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -10,7 +9,32 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+class Score {
+    private String playerName;
+    private int scoreValue;
+
+    public Score(String playerName, int scoreValue) {
+        this.playerName = playerName;
+        this.scoreValue = scoreValue;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public int getScoreValue() {
+        return scoreValue;
+    }
+
+    @Override
+    public String toString() {
+        return playerName + ": " + scoreValue;
+    }
+}
 
 public class ClickGame extends Application {
 
@@ -19,8 +43,9 @@ public class ClickGame extends Application {
     private Text leftNum;
     private int intGainedNum = 0;
     private int intLeftNum = 10;
+    private Text scoreText; // declare scoreText as a class member variable
     private String[] objects = {"obj_1.png","obj_2.png","obj_3.png"};
-
+    private List<Score> topScores = new ArrayList<>();
 
     @Override
     public void start(Stage primaryStage) {
@@ -87,14 +112,14 @@ public class ClickGame extends Application {
                     intLeftNum--;
                     gainedNum.setText(String.valueOf(intGainedNum));
                     leftNum.setText(String.valueOf(intLeftNum));
-                     x = Math.random() * 720;
-                     y = 56;
+                    x = Math.random() * 720;
+                    y = 56;
                     dy = dy * 1.1;
                     imageViewObj.setTranslateY(y);
                     imageViewObj.setTranslateX(x);
 
                 }
-                    /* this lambda method run when the player click on the object falling */
+                /* this lambda method run when the player click on the object falling */
                 imageViewObj.setOnMouseClicked(e -> {
                     intGainedNum++;
                     intLeftNum--;
@@ -113,7 +138,7 @@ public class ClickGame extends Application {
                     stop();
                     finalWallpaper();
 
-             }}
+                }}
 
         };
         animationTimer.start();
@@ -121,9 +146,54 @@ public class ClickGame extends Application {
     public void finalWallpaper() {
         Pane pane = (Pane) imageViewObj.getParent();
         pane.getChildren().removeAll(imageViewObj, gainedNum, leftNum);
+
+        // Add the final wallpaper
         Image finalWallpaperImage = new Image("FinalWallpapere.png");
         ImageView finalImageView = new ImageView(finalWallpaperImage);
         pane.getChildren().add(finalImageView);
+
+        // Add a "Play Again" button
+        Image playAgainBtnImage = new Image("TryAgainBtn.png"); // set an image
+        ImageView playAgainBtnImageView = new ImageView(playAgainBtnImage);
+        playAgainBtnImageView.setTranslateX(1.0);
+        playAgainBtnImageView.setTranslateY(1.1);
+        playAgainBtnImageView.setOnMouseClicked(e -> {
+            // Reset the game
+            intGainedNum = 0;
+            intLeftNum = 10;
+            gainedNum.setText(String.valueOf(intGainedNum));
+            leftNum.setText(String.valueOf(intLeftNum));
+            selectRandomObject();
+            pane.getChildren().addAll(imageViewObj, gainedNum, leftNum);
+            startAnimationLoop();
+
+            // Remove the "Play Again" button and final wallpaper
+            pane.getChildren().removeAll(playAgainBtnImageView, finalImageView, scoreText);
+
+        });
+        pane.getChildren().add(playAgainBtnImageView);
+
+        if (intGainedNum > 0) {
+            Score newScore = new Score("Player", intGainedNum);
+            topScores.add(newScore);
+            Collections.sort(topScores, (s1, s2) -> Integer.compare(s2.getScoreValue(), s1.getScoreValue()));
+            if (topScores.size() > 5) {
+                topScores.remove(5);
+            }
+        }
+
+        int y = 180;
+        int x = 320;
+        for (Score score : topScores) {
+            scoreText = new Text(4, y, score.toString());
+            scoreText.setFont(new Font(25));
+            if (score.getPlayerName().equals("Player")) {
+                scoreText.setTranslateY(y);
+                scoreText.setTranslateX(x);
+            }
+            pane.getChildren().add(scoreText);
+            y += 25;
+        }
     }
 
     public void selectRandomObject() {
@@ -131,7 +201,6 @@ public class ClickGame extends Application {
         Image image = new Image(objImg);
         imageViewObj = new ImageView(image);
     }
-
 
     public static void main(String[] args) {
         launch();
