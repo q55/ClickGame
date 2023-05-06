@@ -9,10 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,15 +33,16 @@ public class p2 extends Application {
     private List<FallingObject> fallingObjects = new ArrayList<>();
     private ImageView imageViewObj;
     private Text Score;
-    File scores = new File("src/scores.txt");
-    ArrayList<Integer> ar = new ArrayList<>();
-    //File unSorted = new File("unsortedStudents.txt");
+    private Text scoreText;
+    ArrayList<Integer> topScore = new ArrayList<>();
     private int objectValue =0 ;
     private int objectValues =0 ;
     private int intLeftNum = 30;
+    private int yCordinateTopScore = 180;
+    private int xCordinateTopScore = 300;
+    List<Text> scoreTextList = new ArrayList<>();
     private String[] objects = {"obj_1.png","obj_2.png","obj_3.png"};
 
-    @Override
     public void start(Stage primaryStage) {
         Pane pane = new Pane();
 
@@ -134,13 +132,11 @@ public class p2 extends Application {
                     });
 
                     if (intLeftNum == 0) {
-
                         stop();
-                        finalWallpaper();
                         try {
-                            addScore(objectValues);
-                        } catch (FileNotFoundException ex) {
-                            throw new RuntimeException(ex);
+                            finalWallpaper(objectValues);
+                        } catch (FileNotFoundException e) {
+                            throw new RuntimeException(e);
                         }
                     }
                 }
@@ -150,6 +146,7 @@ public class p2 extends Application {
     }
 
     public void addNewFallingObject(Pane parentPane) {
+
         Image image = selectRandomObject();
         imageViewObj = new ImageView(image);
         double x = Math.random() * 720;
@@ -171,24 +168,66 @@ public class p2 extends Application {
         fallingObject.imageView.setImage(selectRandomObject());
     }
 
-    public void finalWallpaper() {
+    public void finalWallpaper(int score) throws FileNotFoundException {
+
         Pane pane = (Pane) imageViewObj.getParent();
         if (pane != null) {
             pane.getChildren().removeAll(imageViewObj, Score);
 
             // Add the final wallpaper
-            Image finalWallpaperImage = new Image("FinalWallpapere.png");
+            Image finalWallpaperImage = new Image("FinalWallpapere2.png");
             ImageView finalImageView = new ImageView(finalWallpaperImage);
             pane.getChildren().add(finalImageView);
+
+            try {
+                PrintWriter writer = new PrintWriter(new FileWriter("src/scores.txt",true));
+                writer.println(score);
+                writer.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            File fileContrnt = new File("src/scores.txt");
+
+            Scanner input = new Scanner(fileContrnt);
+            while (input.hasNextInt()) {
+                topScore.add(input.nextInt());
+            }
+            Collections.sort(topScore);
+            Collections.reverse(topScore);
+            if (topScore.size()<5){
+                for (Integer num : topScore) {
+                    scoreText = new Text(4, yCordinateTopScore,"Top"+ (1+ topScore.indexOf(num)) + " : " + String.valueOf(num));
+                    scoreText.setFont(new Font(25));
+                    scoreText.setTranslateY(yCordinateTopScore);
+                    scoreText.setTranslateX(xCordinateTopScore);
+                    pane.getChildren().add(scoreText);
+                    scoreTextList.add(scoreText);
+                    yCordinateTopScore += 22;
+                }
+            }else {
+                for (int i = 0 ; i<5 ; i++) {
+                    scoreText = new Text(4, yCordinateTopScore,"Top"+ (1+i) + " : " +String.valueOf(topScore.get(i)));
+                    scoreText.setFont(new Font(25));
+                    scoreText.setTranslateY(yCordinateTopScore);
+                    scoreText.setTranslateX(xCordinateTopScore);
+                    pane.getChildren().add(scoreText);
+                    scoreTextList.add(scoreText);
+                    yCordinateTopScore += 22;
+                }
+            }
 
             // Add a "Play Again" button
             Image playAgainBtnImage = new Image("TryAgainBtn.png");
             ImageView playAgainBtnImageView = new ImageView(playAgainBtnImage);
 
-
             playAgainBtnImageView.setOnMouseClicked(e -> {
+                topScore.clear();
+                yCordinateTopScore = 175;
                 resetGame(pane);
                 pane.getChildren().removeAll(playAgainBtnImageView, finalImageView);
+                for (Text scoreText : scoreTextList) {
+                    pane.getChildren().remove(scoreText);
+                }
                 pane.getChildren().add(Score);
 
                 for (int i = 0; i < 3; i++) {
@@ -197,8 +236,6 @@ public class p2 extends Application {
                 startAnimationLoop();
             });
             pane.getChildren().add(playAgainBtnImageView);
-
-
         }
     }
     public void resetGame(Pane pane) {
@@ -215,25 +252,6 @@ public class p2 extends Application {
         Image image = new Image(objects[randomIndex]);
         return image;
     }
-
-    public void addScore(int score) throws FileNotFoundException {
-        PrintWriter writer = new PrintWriter(new File("src/scores.txt"));
-        if (scores.exists()) {
-            Scanner scanner = new Scanner(scores);
-            while (scanner.hasNextInt()) {
-                ar.add(scanner.nextInt());
-            }
-            scanner.close();
-        }
-        ar.add(score);
-        Collections.sort(ar);
-        Collections.reverse(ar);
-        for (int i = 0; i < ar.size(); i++) {
-            writer.println(ar.get(i));
-        }
-        writer.close();
-    }
-
     public static void main(String[] args) {
         launch(args);
     }
