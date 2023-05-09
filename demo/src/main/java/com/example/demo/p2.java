@@ -40,6 +40,8 @@ public class p2 extends Application {
     private int intLeftNum = 30;
     private int yCordinateTopScore = 180;
     private int xCordinateTopScore = 300;
+    double dy = 2;
+
     List<Text> scoreTextList = new ArrayList<>();
     private String[] objects = {"obj_1.png","obj_2.png","obj_3.png"};
 
@@ -106,6 +108,7 @@ public class p2 extends Application {
                     }
 
                     fallingObject.imageView.setOnMouseClicked(e -> {
+                        dy = dy*1.05;
                         ImageView clickedImageView = (ImageView) e.getSource();
                         String imageName = clickedImageView.getImage().getUrl();
                         String objectName = null;
@@ -151,7 +154,6 @@ public class p2 extends Application {
         imageViewObj = new ImageView(image);
         double x = Math.random() * 720;
         double y = 56;
-        double dy = 2;
         FallingObject fallingObject = new FallingObject(imageViewObj, x, y, dy);
         fallingObjects.add(fallingObject);
         parentPane.getChildren().add(imageViewObj);
@@ -196,7 +198,7 @@ public class p2 extends Application {
             Collections.reverse(topScore);
             if (topScore.size()<5){
                 for (Integer num : topScore) {
-                    scoreText = new Text(4, yCordinateTopScore,"Top"+ (1+ topScore.indexOf(num)) + " : " + String.valueOf(num));
+                    scoreText = new Text(4, yCordinateTopScore,"TOP"+ (1+ topScore.indexOf(num)) + " : " + String.valueOf(num));
                     scoreText.setFont(new Font(25));
                     scoreText.setTranslateY(yCordinateTopScore);
                     scoreText.setTranslateX(xCordinateTopScore);
@@ -206,7 +208,7 @@ public class p2 extends Application {
                 }
             }else {
                 for (int i = 0 ; i<5 ; i++) {
-                    scoreText = new Text(4, yCordinateTopScore,"Top"+ (1+i) + " : " +String.valueOf(topScore.get(i)));
+                    scoreText = new Text(4, yCordinateTopScore,"TOP"+ (1+i) + " : " +String.valueOf(topScore.get(i)));
                     scoreText.setFont(new Font(25));
                     scoreText.setTranslateY(yCordinateTopScore);
                     scoreText.setTranslateX(xCordinateTopScore);
@@ -221,6 +223,7 @@ public class p2 extends Application {
             ImageView playAgainBtnImageView = new ImageView(playAgainBtnImage);
 
             playAgainBtnImageView.setOnMouseClicked(e -> {
+                dy = 2;
                 topScore.clear();
                 yCordinateTopScore = 175;
                 resetGame(pane);
