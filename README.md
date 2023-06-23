@@ -13,5 +13,8 @@ At the end of the game, the top 5 scores are displayed along with a "play again"
 
 ![image](https://github.com/q55/ClickGame/assets/107367949/be422ec8-f6ea-4bdf-8339-3e66c4160fd1)
 
+*
+![image](https://github.com/q55/ClickGame/assets/107367949/abd73d36-828e-4e91-99e6-4cb4af5d0311)
 
-![image](https://github.com/q55/ClickGame/assets/107367949/c95e4823-7ac5-4783-b16b-13ad7242bf8b)
+*
+![image](https://github.com/q55/ClickGame/assets/107367949/50a66d63-094a-4051-b6c7-a48fa8177f4b)
